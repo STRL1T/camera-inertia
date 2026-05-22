@@ -1,0 +1,74 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "one",
+    "dstrgb": "zero"
+  },
+  "vertex": "camera_inertia:camera_motion_blur",
+  "fragment": "camera_inertia:camera_motion_blur",
+  "attributes": [
+    "Position",
+    "UV0"
+  ],
+  "samplers": [
+    {
+      "name": "DiffuseSampler"
+    }
+  ],
+  "uniforms": [
+    {
+      "name": "Intensity",
+      "type": "float",
+      "count": 1,
+      "values": [0.0]
+    },
+    {
+      "name": "Direction",
+      "type": "float",
+      "count": 1,
+      "values": [0.0]
+    },
+    {
+      "name": "InSize",
+      "type": "float",
+      "count": 2,
+      "values": [1.0, 1.0]
+    },
+    {
+      "name": "OutSize",
+      "type": "float",
+      "count": 2,
+      "values": [1.0, 1.0]
+    },
+    {
+      "name": "SideStart",
+      "type": "float",
+      "count": 1,
+      "values": [0.18]
+    },
+    {
+      "name": "SideEnd",
+      "type": "float",
+      "count": 1,
+      "values": [0.98]
+    },
+    {
+      "name": "EdgePower",
+      "type": "float",
+      "count": 1,
+      "values": [1.45]
+    },
+    {
+      "name": "BlurPixels",
+      "type": "float",
+      "count": 1,
+      "values": [84.0]
+    },
+    {
+      "name": "ChromaPixels",
+      "type": "float",
+      "count": 1,
+      "values": [3.0]
+    }
+  ]
+}

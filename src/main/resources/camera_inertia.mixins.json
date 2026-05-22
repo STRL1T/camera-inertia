@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "starlight_lnk.camerainertia.client.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "camera_inertia.refmap.json",
+  "client": [
+    "GameRendererBlurMixin",
+    "CameraRollMixin",
+    "CameraDistanceMixin",
+    "CameraMoveInvoker"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

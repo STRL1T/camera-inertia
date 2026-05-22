@@ -1,0 +1,17 @@
+modLoader= "javafml"
+loaderVersion= "[47,)"
+license= "All Rights Reserved"
+
+[[mods]]
+modId = "camera_inertia"
+version= "0.1.7"
+displayName= "Camera Inertia!"
+updateJSONURL= ""
+displayURL= ""
+logoFile = "logo.png"
+credits= ""
+authors= "Starlight"
+description='''Camera inertia and camera motion blur client mod.'''
+
+[[mixins]]
+config = "camera_inertia.mixins.json"
