@@ -44,6 +44,9 @@ public final class ClientForgeEvents {
 
             CameraVehicleController.tick();
 
+            // Процедурная анимация ходьбы
+            CameraWalkController.tick();
+
             // 🆕 Эффект скорости транспорта (FOV-boost + симметричный side-blur)
             CameraVehicleSpeedFx.tick();
 
@@ -100,7 +103,8 @@ public final class ClientForgeEvents {
                             + CameraEffectsController.getPitchOffset(partial)
                             + CameraVehicleController.getPitchOffset(partial)
                             + CameraMiningController.getPitchOffset(partial)
-                            + CameraFallShakeController.getPitchOffset(partial);
+                            + CameraFallShakeController.getPitchOffset(partial)
+                            + CameraWalkController.getPitch(partial);
 
             float yawKick =
                     CameraDamageController.getYawOffset(partial)
@@ -109,7 +113,8 @@ public final class ClientForgeEvents {
                             + CameraEffectsController.getYawOffset(partial)
                             + CameraVehicleController.getYawOffset(partial)
                             + CameraMiningController.getYawOffset(partial)
-                            + CameraFallShakeController.getYawOffset(partial);
+                            + CameraFallShakeController.getYawOffset(partial)
+                            + CameraWalkController.getYaw(partial);
 
             float rollKick =
                     CameraDamageController.getRollOffset(partial)
@@ -118,7 +123,8 @@ public final class ClientForgeEvents {
                             + CameraEffectsController.getRollOffset(partial)
                             + CameraVehicleController.getRollOffset(partial)
                             + CameraMiningController.getRollOffset(partial)
-                            + CameraFallShakeController.getRollOffset(partial);
+                            + CameraFallShakeController.getRollOffset(partial)
+                            + CameraWalkController.getRoll(partial);
 
             event.setPitch(event.getPitch() + pitchKick);
             event.setYaw(event.getYaw()     + yawKick);

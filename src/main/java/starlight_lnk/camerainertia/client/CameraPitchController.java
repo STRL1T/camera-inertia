@@ -5,25 +5,16 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
 
 /**
  * 🎥 Контроллер pitch-смещения камеры.
- *
- * Физика приземления:
- *   - Удар об землю → камера резко уходит ВВЕРХ (отрицательный pitch)
- *   - Пружина тянет обратно → камера идёт вниз с перелётом
- *   - Один-два колебания → покой
- *
- * Модель: классическая пружина с вязким трением (Хук + демпфирование).
- *   vel  += -pos * spring
- *   vel  *= damping
- *   pos  += vel
+ * ОРИГИНАЛЬНАЯ ВЕРСИЯ (с физикой пружины)
  */
 public class CameraPitchController {
 
@@ -234,13 +225,6 @@ public class CameraPitchController {
     //   ПРИЗЕМЛЕНИЕ
     // ============================================================
 
-    /**
-     * Импульс направлен ВВЕРХ (отрицательный pitch):
-     * тело остановилось → голова по инерции уходит вверх относительно
-     * тела → возврат вниз с одним-двумя колебаниями.
-     *
-     * Амплитуды уменьшены вдвое — более реалистичный, ненавязчивый эффект.
-     */
     private static void handleLanding(Player player, double currentY) {
         double rawFallHeight = takeoffY - currentY;
         if (rawFallHeight < 0) rawFallHeight = 0;
@@ -255,28 +239,23 @@ public class CameraPitchController {
         float impulse;
 
         if (rawFallHeight < 0.6) {
-            // === AUTO-STEP / мини-прыжок ===
             if (takeoffWasJump) {
                 impulse = 1.25F;
             } else {
                 impulse = 0.75F;
             }
         } else if (rawFallHeight < 2.0) {
-            // === SHORT ===
             float t = (float) ((rawFallHeight - 0.6) / 1.4);
             impulse = Mth.lerp(t, 1.5F, 2.25F);
         } else if (rawFallHeight < 4.0) {
-            // === MEDIUM ===
             float t = (float) ((rawFallHeight - 2.0) / 2.0);
             impulse = Mth.lerp(t, 2.25F, 3.25F);
         } else {
-            // === HARD ===
             float over = (float) (rawFallHeight - 4.0);
             impulse = 3.25F + (float) Math.sqrt(over) * 0.75F;
             if (impulse > 6.0F) impulse = 6.0F;
         }
 
-        // Бонус за скорость удара
         if (impactSpeed > 0.8) {
             float speedBonus = (float) ((impactSpeed - 0.8) * 0.5);
             impulse += Math.min(speedBonus, 1.25F);
@@ -284,7 +263,6 @@ public class CameraPitchController {
 
         impulse *= slowFallMul;
 
-        // ОТРИЦАТЕЛЬНЫЙ → камера вверх → пружина возвращает вниз
         applySpringImpulse(-impulse);
     }
 
@@ -298,12 +276,6 @@ public class CameraPitchController {
         if (springVel < -50.0F) springVel = -50.0F;
     }
 
-    /**
-     * Классическая пружина:
-     *   vel += -pos * SPRING   (сила тянет к нулю, пропорционально смещению)
-     *   vel *= DAMPING         (вязкое трение)
-     *   pos += vel             (интеграция)
-     */
     private static void stepSpring() {
         springVel += -springPos * SPRING;
         springVel *= DAMPING;

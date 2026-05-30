@@ -8,7 +8,11 @@
     "GameRendererBlurMixin",
     "CameraRollMixin",
     "CameraDistanceMixin",
-    "CameraMoveInvoker"
+    "EntityTurnMixin",
+    "PlayerTickMixin",
+    "KeyboardInputMixin",
+    "CameraMoveInvoker",
+    "LocalPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
