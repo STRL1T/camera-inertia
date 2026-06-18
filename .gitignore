@@ -1,4 +1,31 @@
 # Project exclude paths
 /.gradle/
 /build/
-/build/classes/java/main/
+
+# IDE files
+/.idea/
+/.vscode/
+*.iml
+*.iws
+*.ipr
+out/
+bin/
+
+# Run directory junk
+/run/logs/
+/run/crash-reports/
+/run/saves/
+/run/usercache.json
+/run/usernamecache.json
+/run/options.txt
+/run/servers.dat
+/run/mods/
+/run/resourcepacks/
+/run/*.log
+/logs/
+
+# Temp/Misc files
+/ref/
+.DS_Store
+*.class
+Extractor.java
