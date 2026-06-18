@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import starlight_lnk.camerainertia.config.ClientConfig;
 
 /**
  * 🎥 Контроллер ДОПОЛНИТЕЛЬНЫХ движений камеры при перемещении игрока.
@@ -96,19 +97,22 @@ public class CameraMovementController {
                 double fallHeight = takeoffY - posY;
                 if (fallHeight < 0) fallHeight = 0;
 
-                // Тяжёлое падение (4+ блока) → лёгкий боковой наклон.
-                // Подбирали так, чтобы НЕ перетягивать с пружиной pitch:
-                //   - на 4 блоках  → ~0.6°
-                //   - на 10 блоках → ~1.2°
-                //   - на 23 блоках → ~2.0°
-                if (fallHeight > 4.0) {
-                    float over = (float) (fallHeight - 4.0);
-                    float magnitude = 0.6F + (float) Math.sqrt(over) * 0.25F;
-                    if (magnitude > 2.0F) magnitude = 2.0F;
+                // ЖЕСТКИЙ БЛОК: Применяем тряску ТОЛЬКО если она включена в конфиге
+                if (ClientConfig.FALL_SHAKE_ENABLED.get() && ClientConfig.FALL_SHAKE_STRENGTH.get() > 0.0) {
 
-                    rollOffset += magnitude * nextRollSign;
-                    // Чередуем сторону для следующего раза
-                    nextRollSign = -nextRollSign;
+                    // Тяжёлое падение (4+ блока) → лёгкий боковой наклон.
+                    if (fallHeight > 4.0) {
+                        float over = (float) (fallHeight - 4.0);
+                        float magnitude = 0.6F + (float) Math.sqrt(over) * 0.25F;
+                        if (magnitude > 2.0F) magnitude = 2.0F;
+
+                        // Умножаем на силу из конфига!
+                        float configStrength = ClientConfig.FALL_SHAKE_STRENGTH.get().floatValue();
+                        rollOffset += (magnitude * configStrength) * nextRollSign;
+
+                        // Чередуем сторону для следующего раза
+                        nextRollSign = -nextRollSign;
+                    }
                 }
 
                 tracking = false;

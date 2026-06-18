@@ -1,6 +1,7 @@
 package starlight_lnk.camerainertia.client;
 
 import net.minecraft.client.Minecraft;
+import starlight_lnk.camerainertia.config.ClientConfig;
 
 public class CameraRollController {
 
@@ -56,12 +57,14 @@ public class CameraRollController {
                 if (Float.isNaN(strafe) || Float.isInfinite(strafe)) strafe = 0.0F;
             }
 
-            // 🌀 Инерция уменьшена на 50%
-            // yawDelta:  было 1.5  → теперь 0.75 (поворот мышью)
-            // strafe:    было 5.0  → теперь 2.5  (клавиши A/D)
+            // === ПРИМЕНЕНИЕ НАСТРОЕК ИЗ МЕНЮ ===
+            float turnMul = ClientConfig.TURN_INTENSITY.get().floatValue();
+            float strafeMul = ClientConfig.STRAFE_ROLL_INTENSITY.get().floatValue();
+
+            // 🌀 Инерция с учетом наших множителей
             float targetRoll = 0.0F;
-            targetRoll += -yawDelta * 0.75F;
-            targetRoll += -strafe   * 2.5F;
+            targetRoll += -yawDelta * 0.75F * turnMul;
+            targetRoll += -strafe   * 2.5F * strafeMul;
 
             // Лимит тоже снижаем в 2 раза (было ±12 → ±6)
             if (targetRoll >  6.0F) targetRoll =  6.0F;

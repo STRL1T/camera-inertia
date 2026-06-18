@@ -1,0 +1,42 @@
+{
+  "camerainertia.config.preset": "Пресет",
+  "camerainertia.preset.classic": "Классический (Выкл)",
+  "camerainertia.preset.shooter": "Шутер",
+  "camerainertia.preset.realism": "Реализм",
+  "camerainertia.preset.drunkard": "Пьяница",
+  "camerainertia.preset.custom": "Кастомный",
+
+  "camerainertia.config.apply": "Применить",
+  "camerainertia.config.reset": "Сбросить",
+  "camerainertia.config.resetting": "Сброс... %d%%",
+  "camerainertia.config.reset_done": "Сброшено!",
+
+  "camerainertia.config.menu_motion": "Движение и Инерция",
+  "camerainertia.config.menu_actions": "Анимации Действий",
+  "camerainertia.config.menu_items": "Оружие и Предметы",
+  "camerainertia.config.menu_blur": "Размытие (Motion Blur)",
+
+  "camerainertia.config.strafe_roll": "Сила крена при ходьбе вбок",
+  "camerainertia.config.blur_enabled": "Включить размытие",
+  "camerainertia.config.blur_pixels": "Сила размытия (Пиксели)",
+  "camerainertia.config.blur_chroma": "Хроматическая аберрация",
+  "camerainertia.config.blur_sens": "Чувствительность к камере",
+  "camerainertia.config.blur_max": "Лимит размытия",
+
+  "camerainertia.config.weapon_zoom": "Зум оружия",
+  "camerainertia.config.weapon_zoom_str": "Сила зума",
+
+  "camerainertia.config.mining": "Инерция добычи",
+  "camerainertia.config.mining_str": "Сила ударов",
+  "camerainertia.config.vehicle": "Инерция транспорта",
+  "camerainertia.config.vehicle_str": "Тряска транспорта",
+  "camerainertia.config.fall": "Тряска при падении",
+  "camerainertia.config.fall_str": "Сила удара о землю",
+  "camerainertia.config.f5": "Анимация переключения F5",
+  "camerainertia.config.items_anim": "Анимации предметов",
+  "camerainertia.config.body": "Тело от 1-го лица",
+  "camerainertia.config.move": "Покачивание при ходьбе",
+  "camerainertia.config.move_intensity": "Сила шагов",
+  "camerainertia.config.turn": "Наклоны камеры",
+  "camerainertia.config.turn_intensity": "Инерция поворотов"
+}

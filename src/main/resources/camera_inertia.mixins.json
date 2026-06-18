@@ -7,12 +7,9 @@
   "client": [
     "GameRendererBlurMixin",
     "CameraRollMixin",
-    "CameraDistanceMixin",
-    "EntityTurnMixin",
-    "PlayerTickMixin",
-    "KeyboardInputMixin",
-    "CameraMoveInvoker",
-    "LocalPlayerMixin"
+    "CameraF5AnimationMixin",
+    "CustomHeadLayerMixin",
+    "ArmorLayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

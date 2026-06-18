@@ -1,0 +1,42 @@
+{
+  "camerainertia.config.preset": "Preset",
+  "camerainertia.preset.classic": "Classic (Off)",
+  "camerainertia.preset.shooter": "Shooter",
+  "camerainertia.preset.realism": "Realism",
+  "camerainertia.preset.drunkard": "Drunkard",
+  "camerainertia.preset.custom": "Custom",
+
+  "camerainertia.config.apply": "Apply",
+  "camerainertia.config.reset": "Reset",
+  "camerainertia.config.resetting": "Resetting... %d%%",
+  "camerainertia.config.reset_done": "Reset!",
+
+  "camerainertia.config.menu_motion": "Movement & Inertia",
+  "camerainertia.config.menu_actions": "Action Animations",
+  "camerainertia.config.menu_items": "Weapons & Items",
+  "camerainertia.config.menu_blur": "Motion Blur",
+
+  "camerainertia.config.strafe_roll": "Strafe Roll Strength",
+  "camerainertia.config.blur_enabled": "Enable Motion Blur",
+  "camerainertia.config.blur_pixels": "Blur Strength (Pixels)",
+  "camerainertia.config.blur_chroma": "Chromatic Aberration",
+  "camerainertia.config.blur_sens": "Camera Sensitivity",
+  "camerainertia.config.blur_max": "Blur Limit",
+
+  "camerainertia.config.weapon_zoom": "Weapon Zoom",
+  "camerainertia.config.weapon_zoom_str": "Zoom Strength",
+
+  "camerainertia.config.mining": "Mining Inertia",
+  "camerainertia.config.mining_str": "Swing Strength",
+  "camerainertia.config.vehicle": "Vehicle Inertia",
+  "camerainertia.config.vehicle_str": "Vehicle Shake",
+  "camerainertia.config.fall": "Fall Shake",
+  "camerainertia.config.fall_str": "Impact Strength",
+  "camerainertia.config.f5": "F5 Perspective Transition",
+  "camerainertia.config.items_anim": "Item Animations",
+  "camerainertia.config.body": "First Person Body",
+  "camerainertia.config.move": "View Bobbing",
+  "camerainertia.config.move_intensity": "Step Intensity",
+  "camerainertia.config.turn": "Camera Tilts",
+  "camerainertia.config.turn_intensity": "Turning Inertia"
+}

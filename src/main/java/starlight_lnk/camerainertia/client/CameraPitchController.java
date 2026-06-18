@@ -11,10 +11,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
+import starlight_lnk.camerainertia.config.ClientConfig;
 
 /**
  * 🎥 Контроллер pitch-смещения камеры.
- * ОРИГИНАЛЬНАЯ ВЕРСИЯ (с физикой пружины)
+ * Полностью синхронизирован с конфигом: в Классическом режиме отключен!
  */
 public class CameraPitchController {
 
@@ -28,11 +29,8 @@ public class CameraPitchController {
     private static float springPos = 0.0F;
     private static float springVel = 0.0F;
 
-    /** Жёсткость пружины. Выше = быстрее достигает пика, кик «вовремя». */
     private static final float SPRING = 0.55F;
-    /** Демпфирование. Чуть ниже = острее реакция, меньше «вязкости». */
     private static final float DAMPING = 0.78F;
-
     private static final float SPRING_MAX_DEG = 8.0F;
 
     // ============================================================
@@ -98,26 +96,32 @@ public class CameraPitchController {
             double  motionY  = player.getDeltaMovement().y;
             double  posY     = player.getY();
 
-            // ========== УДАР ==========
+            // ========== УДАР (Зависит от MINING_INERTIA) ==========
             boolean swinging = player.swinging;
-            if (swinging && !wasSwinging) {
-                attackTarget = -1.0F;
+            if (ClientConfig.MINING_INERTIA_ENABLED.get() && ClientConfig.MINING_INERTIA_STRENGTH.get() > 0.0) {
+                float miningStr = ClientConfig.MINING_INERTIA_STRENGTH.get().floatValue();
+                if (swinging && !wasSwinging) {
+                    attackTarget = -1.0F * miningStr;
+                }
             }
             wasSwinging = swinging;
 
-            // ========== УРОН ==========
+            // ========== УРОН (Зависит от FALL_SHAKE) ==========
             float curHealth = player.getHealth();
             if (prevHealth < 0) prevHealth = curHealth;
-            if (curHealth < prevHealth) {
-                float damage = prevHealth - curHealth;
-                float kick = Math.min(damage * 0.65F, 3.5F);
-                if (Math.random() < 0.5) kick = -kick;
-                attackTarget += kick;
+            if (ClientConfig.FALL_SHAKE_ENABLED.get() && ClientConfig.FALL_SHAKE_STRENGTH.get() > 0.0) {
+                float fallStr = ClientConfig.FALL_SHAKE_STRENGTH.get().floatValue();
+                if (curHealth < prevHealth) {
+                    float damage = prevHealth - curHealth;
+                    float kick = Math.min(damage * 0.65F, 3.5F) * fallStr;
+                    if (Math.random() < 0.5) kick = -kick;
+                    attackTarget += kick;
+                }
             }
             prevHealth = curHealth;
 
-            // ========== ИСПОЛЬЗОВАНИЕ ПРЕДМЕТА ==========
-            if (player.isUsingItem()) {
+            // ========== ИСПОЛЬЗОВАНИЕ ПРЕДМЕТА (Зависит от ITEM_ANIMATIONS) ==========
+            if (player.isUsingItem() && ClientConfig.ITEM_ANIMATIONS_ENABLED.get()) {
                 ItemStack using = player.getUseItem();
                 UseAnim anim = using.getUseAnimation();
                 int kind = getUseKind(using, anim);
@@ -151,42 +155,48 @@ public class CameraPitchController {
                 }
             }
 
-            // ========== ПРЫЖОК — голова отстаёт, камера вниз ==========
+            // Получаем силу падения/прыжков из конфига
+            boolean doFall = ClientConfig.FALL_SHAKE_ENABLED.get() && ClientConfig.FALL_SHAKE_STRENGTH.get() > 0.0;
+            float fallStr = doFall ? ClientConfig.FALL_SHAKE_STRENGTH.get().floatValue() : 0.0F;
+
+            // ========== ПРЫЖОК ==========
             if (wasOnGround && !onGround && motionY > 0.1) {
-                applySpringImpulse(1.0F);
+                if (doFall) applySpringImpulse(1.0F * fallStr);
             }
 
-            // ========== ПРИЗЕМЛЕНИЕ — главное событие ==========
+            // ========== ПРИЗЕМЛЕНИЕ ==========
             if (!wasOnGround && onGround) {
-                handleLanding(player, posY);
+                if (doFall) handleLanding(player, posY, fallStr);
                 tracking = false;
             }
 
             // ========== ВХОД В ВОДУ ==========
             if (!wasInWater && inWater && prevMotionY < -0.2) {
-                float splash = (float) Math.min(Math.abs(prevMotionY) * 4.0F, 3.0F);
-                applySpringImpulse(-splash);
+                if (doFall) {
+                    float splash = (float) Math.min(Math.abs(prevMotionY) * 4.0F, 3.0F);
+                    applySpringImpulse(-splash * fallStr);
+                }
                 tracking = false;
             }
 
             // ========== ВЫХОД ИЗ ВОДЫ ==========
             if (wasInWater && !inWater) {
-                applySpringImpulse(0.75F);
+                if (doFall) applySpringImpulse(0.75F * fallStr);
             }
 
             // ========== ШАГ ПРУЖИНЫ ==========
             stepSpring();
 
-            // ========== УДАРЫ ==========
+            // ========== УДАРЫ И ИСПОЛЬЗОВАНИЕ ==========
             attackPitch  += (attackTarget - attackPitch) * 0.18F;
             attackTarget *= 0.82F;
 
-            // ========== ИСПОЛЬЗОВАНИЕ ==========
             usePitch  += (useTarget - usePitch) * 0.22F;
             useTarget *= 0.93F;
 
-            // ========== ПЛАВАНИЕ ==========
-            if (inWater && player.isSwimming()) {
+            // ========== ПЛАВАНИЕ (Зависит от MOVEMENT_INTENSITY) ==========
+            if (inWater && player.isSwimming() && ClientConfig.MOVEMENT_ANIMATIONS_ENABLED.get() && ClientConfig.MOVEMENT_INTENSITY.get() > 0.0) {
+                float moveStr = ClientConfig.MOVEMENT_INTENSITY.get().floatValue();
                 Vec3 v = player.getDeltaMovement();
                 double horizSpeed = Math.sqrt(v.x * v.x + v.z * v.z);
 
@@ -196,7 +206,8 @@ public class CameraPitchController {
                 }
 
                 float amplitude  = (float) Math.min(horizSpeed * 12.5F, 4.0F);
-                float swimTarget = (float) Math.sin(swimPhase) * amplitude;
+                // Умножаем цель плавания на ползунок ходьбы
+                float swimTarget = (float) Math.sin(swimPhase) * amplitude * moveStr;
                 swimPitch += (swimTarget - swimPitch) * 0.20F;
             } else {
                 swimPitch *= 0.88F;
@@ -222,10 +233,10 @@ public class CameraPitchController {
     }
 
     // ============================================================
-    //   ПРИЗЕМЛЕНИЕ
+    //   ПРИЗЕМЛЕНИЕ (передаем силу из конфига)
     // ============================================================
 
-    private static void handleLanding(Player player, double currentY) {
+    private static void handleLanding(Player player, double currentY, float strengthMultiplier) {
         double rawFallHeight = takeoffY - currentY;
         if (rawFallHeight < 0) rawFallHeight = 0;
 
@@ -263,11 +274,12 @@ public class CameraPitchController {
 
         impulse *= slowFallMul;
 
-        applySpringImpulse(-impulse);
+        // Умножаем финальный импульс на ползунок из конфига!
+        applySpringImpulse(-impulse * strengthMultiplier);
     }
 
     // ============================================================
-    //   ПРУЖИНА (классическая модель)
+    //   ПРУЖИНА
     // ============================================================
 
     private static void applySpringImpulse(float deltaVel) {

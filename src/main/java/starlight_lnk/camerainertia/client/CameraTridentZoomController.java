@@ -40,7 +40,8 @@ public class CameraTridentZoomController {
                 return;
             }
 
-            if (!ClientConfig.TRIDENT_ZOOM_ENABLED.get()) {
+            // ЖЕСТКИЙ БЛОК: Если зум выключен в конфиге (Классика), выходим
+            if (!ClientConfig.WEAPON_ZOOM_ENABLED.get()) {
                 fadeOut();
                 return;
             }
@@ -69,8 +70,9 @@ public class CameraTridentZoomController {
             int riptideLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.RIPTIDE, using);
             boolean riptideReady = riptideLevel > 0 && (player.isInWaterOrRain());
 
-            // === Целевая сила зума ===
-            float maxZoomStrength = ClientConfig.TRIDENT_ZOOM_STRENGTH.get().floatValue();
+            // === ЦЕЛЕВАЯ СИЛА ЗУМА ===
+            // УМЕНЬШЕНО В 4 РАЗА (* 0.25F), чтобы зум был слабым и комфортным!
+            float maxZoomStrength = ClientConfig.WEAPON_ZOOM_STRENGTH.get().floatValue() * 0.25F;
 
             // При Riptide зум слабее (игрок готовится к полёту, не к броску)
             if (riptideReady) {
@@ -78,7 +80,6 @@ public class CameraTridentZoomController {
             }
 
             // Зум: 1.0 → (1.0 - maxZoomStrength)
-            // Например, при maxZoomStrength = 0.25 → FOV сожмётся до 75% от обычного
             float targetZoom = 1.0F - (maxZoomStrength * chargeProgress);
 
             prevZoom = currentZoom;

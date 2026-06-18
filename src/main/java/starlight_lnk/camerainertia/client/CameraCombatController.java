@@ -9,6 +9,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class CameraCombatController {
 
     // === ИТОГОВОЕ СМЕЩЕНИЕ ===
@@ -43,6 +46,9 @@ public class CameraCombatController {
 
     private static final float VISUAL_STRENGTH = 1.0F;
 
+    // === КЭШ МЕЧЕЙ ДЛЯ ОПТИМИЗАЦИИ ===
+    private static final Map<Item, Boolean> MELEE_WEAPON_CACHE = new ConcurrentHashMap<>();
+
     public static void tick() {
         try {
             Minecraft mc = Minecraft.getInstance();
@@ -70,7 +76,9 @@ public class CameraCombatController {
             boolean missedAirAttack        = isMissedAirAttack(mc);
 
             ItemStack held = player.getMainHandItem();
-            boolean isSword     = held.getItem() instanceof SwordItem;
+
+            // Используем новую универсальную проверку на рукопашное оружие
+            boolean isSword     = isMeleeWeapon(held);
             boolean generalItem = isGeneralItem(held);
 
             boolean allowAnimation = generalItem || isSword;
@@ -88,9 +96,7 @@ public class CameraCombatController {
                     attackCooldownTicks = OBJECT_ATTACK_COOLDOWN_TICKS;
                 } else if (justPressedAttack && !lookingAtLivingEntity
                         && !lookingAtBlockOrObject && missedAirAttack) {
-                    // 💨 Удар по воздуху — ТОЛЬКО при ОДИНОЧНОМ нажатии,
-                    // а не на каждый тик при зажатии ЛКМ.
-                    // 🔧 ИЗМЕНЕНО: attackDown → justPressedAttack
+                    // 💨 Удар по воздуху
                     triggerAttackInertia(player, VISUAL_STRENGTH, WEAK_MISSED_ATTACK_STRENGTH_MULTIPLIER, 1.0F);
                     attackCooldownTicks = MISSED_ATTACK_COOLDOWN_TICKS;
                 }
@@ -147,10 +153,7 @@ public class CameraCombatController {
         }
     }
 
-    private static void triggerAttackInertia(LocalPlayer player,
-                                             float visualStrength,
-                                             float strengthMultiplier,
-                                             float itemBonus) {
+    private static void triggerAttackInertia(LocalPlayer player, float visualStrength, float strengthMultiplier, float itemBonus) {
         if (strengthMultiplier <= 0.0F) return;
 
         float side = (player.tickCount & 1) == 0 ? 1.0F : -1.0F;
@@ -187,6 +190,26 @@ public class CameraCombatController {
 
     // =================================================================
 
+    // --- УНИВЕРСАЛЬНАЯ ПРОВЕРКА ОРУЖИЯ БЛИЖНЕГО БОЯ ---
+    private static boolean isMeleeWeapon(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) return false;
+        Item item = stack.getItem();
+
+        return MELEE_WEAPON_CACHE.computeIfAbsent(item, i -> {
+            if (i instanceof SwordItem || i instanceof TridentItem || i instanceof AxeItem) {
+                return true;
+            }
+
+            // Проверка интерфейсов для модов (например LrTactical IMeleeWeapon)
+            for (Class<?> iface : i.getClass().getInterfaces()) {
+                if (iface.getName().contains("IMeleeWeapon")) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
+
     private static boolean isLookingAtLivingEntity(Minecraft mc) {
         HitResult hr = mc.hitResult;
         if (hr == null || hr.getType() != HitResult.Type.ENTITY) return false;
@@ -215,11 +238,12 @@ public class CameraCombatController {
         if (stack == null || stack.isEmpty()) return true;
         Item item = stack.getItem();
 
-        if (item instanceof SwordItem)      return false;
+        // Проверяем, не оружие ли это? (Используем наш кэшированный метод)
+        if (isMeleeWeapon(stack)) return false;
+
         if (item instanceof DiggerItem)     return false;
         if (item instanceof BowItem)        return false;
         if (item instanceof CrossbowItem)   return false;
-        if (item instanceof TridentItem)    return false;
         if (item instanceof ShieldItem)     return false;
         if (item instanceof FishingRodItem) return false;
 
